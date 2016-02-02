@@ -6,24 +6,37 @@
 var data, response;
 var supported_versions = ["mazemetal0.01"];
 var nameValidator = /^[A-Za-z0-9_]+$/;
-var sound = SoundEngine();
+var sound;
 
 // Load the file containing all the maze info
-var oReq = new XMLHttpRequest();
-oReq.onload = reqListener;
-oReq.open("get", "maze-I.json", true);
-oReq.send();
-function reqListener(e) {
-		response = this.responseText
-    data = JSON.parse(formatToJSON(response));
-    if(validate(data)){
-    	console.log("Let's begin")
-    	sound.init(data["mp3"],function(){
-    		console.log("Mp3 loaded");
-    		main(data)
-    	});
-    }
+function loadMaze(json_fname){
+	if(typeof sound !== "undefined"){
+		$('#loading').text("stopping current SoundEngine");
+		sound.stopMetronome();
+		//sound.stopAll(0);
+		sound = undefined;
+	}
+	sound = SoundEngine();
+	var json_fname = json_fname || "litanyofregrets.json";
+	var oReq = new XMLHttpRequest();
+	oReq.onload = reqListener;
+	oReq.open("get", json_fname, true);
+	oReq.send();
+	function reqListener(e) {
+			response = this.responseText
+	    data = JSON.parse(formatToJSON(response));
+	    if(validate(data)){
+	    	console.log("Let's begin")
+	    	$('#loading').text("Loading "+data['title'])
+	    	sound.init(data["mp3"],function(){
+	    		console.log("Mp3 loaded");
+	    		main(data)
+	    		$('#loading').html("Now wandering though:<br>"+data['title']+"<br>By: "+data['artist']);
+	    	});
+	    }
+	}
 }
+loadMaze();
 
 // execute the machine
 // trust that the machine is valid

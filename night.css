@@ -1,0 +1,16 @@
+body {
+	margin: 10px;
+	background-color: #445;
+}
+h1 {
+	font-family: 'Press Start 2P', cursive;
+	color: #DDF;
+}
+#loading {
+	font-style: italic;
+	color: #DDF;
+}
+.container {
+	background-color: #334;
+	max-width: 225px;
+}

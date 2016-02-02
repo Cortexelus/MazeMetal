@@ -1,3 +1,29 @@
-
+<!-- Latest compiled and minified Bootstrap CSS -->
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<!-- Latest compiled Bootstrap JavaScript -->
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<!-- Custom CSS-->
+<link href='https://fonts.googleapis.com/css?family=Press+Start+2P' rel='stylesheet' type='text/css'>
+<link href='./night.css' rel='stylesheet' type='text/css'>
 <script src="soundengine.js"></script>
 <script src="mazemetal.js"></script>
+<div class='container'>
+	<h1>MAZE<br>METAL</h1>
+	<select class="mazes">
+		<option value="litanyofregrets">Krallice - Litany Of Regrets</option>
+		<option value="maze-I">ZVK - Maze I</option>
+	</select>
+	<span id="loading"></span>
+</div>
+<script type='text/javascript'>
+	$(function() {
+	  	$('.mazes').on('change', function(){
+	    	var selected = $(this).find("option:selected").val();
+	    	selected += ".json";
+	    	loadMaze(selected);
+	    	console.log("loading "+selected);
+	  	});
+	});
+</script>
