@@ -11,7 +11,7 @@ var sound = SoundEngine();
 // Load the file containing all the maze info
 var oReq = new XMLHttpRequest();
 oReq.onload = reqListener;
-oReq.open("get", "litanyofregrets.json", true);
+oReq.open("get", "maze-I.json", true);
 oReq.send();
 function reqListener(e) {
 		response = this.responseText
