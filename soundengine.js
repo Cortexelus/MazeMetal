@@ -1,4 +1,4 @@
-
+"use strict"
 function SoundEngine(){
 	return {
 		context: {},
@@ -6,9 +6,10 @@ function SoundEngine(){
 		source: {},
 		request: new XMLHttpRequest(),
 		init: function(mp3, callback){
-			this.context = new webkitAudioContext();
+			this.context = new (window.AudioContext || window.webkitAudioContext);
 			this.source = this.context.createBufferSource();
 			var self = this;
+
 			
 			// Create an XHR object to fetch the sound-file from the server
 			//this.request = new XMLHttpRequest();
@@ -21,7 +22,7 @@ function SoundEngine(){
 						// Store the decoded buffer data in the source object
 						self.source.buffer = decoded_data; 
 
-			 			audioGain = self.context.createGain();
+			 			var audioGain = self.context.createGain();
         				audioGain.gain.value = 1;
         				audioGain.connect(self.context.destination);
 
@@ -67,7 +68,7 @@ function SoundEngine(){
 			//console.log("play", seg);
 			//when, start, duration, callback_onended, gain, layer
 			// Create a new BufferSource
-			newSource = this.context.createBufferSource();
+			var newSource = this.context.createBufferSource();
 
 			// Copy the buffer data from the loaded sound
 			newSource.buffer = this.source.buffer;
@@ -133,14 +134,24 @@ function SoundEngine(){
 			this.playQueue.push(newSource)
 			
 		},*/
-
+		/*stopAll: takes an optional delay time to wait before stoping Buffers*/
 		stopAll: function(w){
-			console.log("stopAll")
 			var bq = this.bufferQueue;
-			for(var b=0;b< bq.length;b++){
+			if (bq.length > 0){
+				w = w || 1;
+				console.log("stopAll");
+				for(var b=0;b< bq.length;b++){
+					try{
 					bq[b].stop(w + this.context.currentTime);
+					} catch(e){
+						console.warn(e);
+						console.log("buffer "+b);
+					}
+				}
+			} else {
+				//buffer sources have not been started yet
 			}
-			this.bufferQueue = []
+			this.bufferQueue = [];
 		},
 
 		timerWorker: null,
