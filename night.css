@@ -6,6 +6,11 @@ h1 {
 	font-family: 'Press Start 2P', cursive;
 	color: #DDF;
 }
+pre {
+	color: #DDF;
+	background-color: #445;
+	margin: 10px;
+}
 #loading {
 	font-style: italic;
 	color: #DDF;
@@ -13,4 +18,18 @@ h1 {
 .container {
 	background-color: #334;
 	max-width: 225px;
+}
+.glyphicon.glyphicon-one-fine-dot:before {
+    content: "\25cf";
+    font-size: 2.5em;
+}
+.blackvoid {
+	text-align: center;
+}
+.blackvoid a {
+	color: #001;
+	text-decoration: none
+}
+.blackvoid a:hover {
+	color: #200;
 }
