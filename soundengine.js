@@ -7,10 +7,10 @@ function SoundEngine(){
 		request: new XMLHttpRequest(),
 		init: function(mp3, callback){
 			this.context = new (window.AudioContext || window.webkitAudioContext);
-			this.source = this.context.createBufferSource();
+			this.initialized = false;
 			var self = this;
 
-			
+
 			// Create an XHR object to fetch the sound-file from the server
 			//this.request = new XMLHttpRequest();
 			// Make an EventListener to handle the sound-file after it has been loaded
@@ -20,6 +20,7 @@ function SoundEngine(){
 				self.context.decodeAudioData( self.request.response, function( decoded_data ){ 
 						
 						// Store the decoded buffer data in the source object
+						self.source = self.context.createBufferSource();
 						self.source.buffer = decoded_data; 
 
 			 			var audioGain = self.context.createGain();
@@ -50,6 +51,60 @@ function SoundEngine(){
 				}, false );
 
 			this.request.onerror = function(e) {
+                console.log("error",e);
+            }
+           	this.request.onloadend = function(){
+           		self.initialized = true;
+           	}
+			// Point the request to the sound-file that you want to play
+			this.request.open( 'GET', mp3, true );
+			// Set the XHR response-type to 'arraybuffer' to store binary data
+			this.request.responseType = "arraybuffer";
+			// Begin requesting the sound-file from the server
+			this.request.send();
+		},
+		load: function(mp3, callback){
+			var self = this;
+			// Create an XHR object to fetch the sound-file from the server
+			//this.request = new XMLHttpRequest();
+			// Make an EventListener to handle the sound-file after it has been loaded
+			this.request.addEventListener( 'load', function( e ){
+				// Beginning decoding the audio data from loaded sound-file ...
+				
+				self.context.decodeAudioData( self.request.response, function( decoded_data ){ 
+						
+						// Store the decoded buffer data in the source object
+						self.source = self.context.createBufferSource();
+						self.source.buffer = decoded_data; 
+
+			 			var audioGain = self.context.createGain();
+        				audioGain.gain.value = 1;
+        				audioGain.connect(self.context.destination);
+
+						// Connect the source node to the Web Audio destination node
+						self.source.connect( self.context.destination ); 
+						// Add an EventListener to fire a function every time a key is pressed
+						
+						/* Init tiny metronome */
+						/* This regulates the playback queuing of individual segments */
+						self.startMetronome();
+						
+						/* Init big metronome */
+						/* This regulates the queuing of bars, structures  */
+						/*self.bigMetronome.init(self);
+						self.bigMetronome.start();*/
+						
+
+
+						callback();  
+					// Handle any decoding errors
+					}, function( e ){ console.log( e ); } 
+				// End of decode handler
+				); 
+				// End of Event Listener
+				}, false );
+
+			this.request.onerror = function(e) {
                 console.log("error",e)
             }
 
@@ -59,8 +114,6 @@ function SoundEngine(){
 			this.request.responseType = "arraybuffer";
 			// Begin requesting the sound-file from the server
 			this.request.send();
-
-			
 		},
 		bufferQueue: [], // only necessary to keep track of what to stop
 
@@ -151,7 +204,9 @@ function SoundEngine(){
 			} else {
 				//buffer sources have not been started yet
 			}
+			/*flush current bufferQueue and segmentQueue*/
 			this.bufferQueue = [];
+			this.segmentQueue = [];
 		},
 
 		timerWorker: null,
