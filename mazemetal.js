@@ -9,13 +9,10 @@ var nameValidator = /^[A-Za-z0-9_]+$/;
 var sound = SoundEngine();
 var termination_flag = false;
 var initialized = false;
-var isReady = false;
-
 var oReq = new XMLHttpRequest();
 oReq.onload = reqListener;
-var current_f_name = "litanyofregrets.json";
-var current_loaded;
-oReq.open("get", current_f_name, true);
+var f_name = "litanyofregrets.json";
+oReq.open("get", f_name, true);
 oReq.send();
 
 function reqListener(e) {
@@ -24,177 +21,154 @@ function reqListener(e) {
     if(validate(data)){
     	console.log("Let's begin");
     	//stop buffers and metronome if already started
-		if(initialized){
+		if(sound.initialized){
 			sound.load(data["mp3"],function(){
-				current_loaded = current_f_name.slice(0, -5);
-				if(data.mp3.slice(0, -4) === current_loaded){
-					termination_flag = false;
-		    		console.log("Mp3 loaded");
-		    		main(data);
-		    	} else {
-					console.warn('ignoring this file');
-				}
+	    		console.log("Mp3 loaded");
+	    		main(data)
 	    	}, sound);
 		} else {
 			sound.init(data["mp3"],function(){
-				current_loaded = current_f_name.slice(0, -5);
-				if(data.mp3.slice(0, -4) === current_f_name.slice(0, -5)){
-				termination_flag = false;
-	    		console.log("Mp3 loaded... initializing");
-	    		isReady = true;
+	    		console.log("Mp3 loaded");
 	    		main(data);
 	    		initialized = true;
-	    		} else {
-					console.warn('ignoring this file');
-				}
 	    	});
 		}
     	
     }
-	
 }
 // Load the file containing all the maze info
-function loadMaze(fn){
+function loadMaze(json){
+	f_name = json || "litanyofregrets.json";
 	termination_flag = true;
-	if (isReady){
-		current_f_name = fn || "litanyofregrets.json";
-		isReady = false;
-		console.log('stoping sound')
-		sound.stopMetronome();
-		sound.stopAll();
-		sound.request.abort();
-		console.log("loading "+ current_f_name);
-		oReq.open("get", current_f_name, true);
-		oReq.send();
-	}
+	sound.stopMetronome();
+	sound.stopAll();
+	console.warn('aborting previous json oReq');
+	oReq.abort();
+	oReq.open("get", f_name, true);
+	oReq.send();
 }
 // execute the machine
 // trust that the machine is valid
 function main(data){
-	if(data.mp3.slice(0, -4) === current_f_name.slice(0, -5)){
-		var stack = [["main",0]];
-		var next_time = 0;
-		var address = stack[stack.length-1];
-		var f_name, line, f;
-		termination_flag = false;
-		console.log(data);
-		while(true){
-			address = stack[stack.length-1];
-			f_name = address[0];
-			line = address[1];
-			f = data.machine[f_name];
-			var cmd = f[line];
-			console.log(stack.toString()	)
-			console.log("> ", cmd);
-			args = cmd.split(" ");
+	var stack = [["main",0]];
+	var next_time = 0;
+	var address = stack[stack.length-1];
+	var f_name, line, f;
+	termination_flag = false;
+	while(true){
+		address = stack[stack.length-1];
+		f_name = address[0];
+		line = address[1];
+		f = data.machine[f_name];
+		var cmd = f[line];
+		console.log(stack.toString()	)
+		console.log("> ", cmd);
+		args = cmd.split(" ");
 
-			// terminate 
-			if(args[0]=="terminate"){
-				break;
-			}
-
-			// label
-			if(args[0]=="label"){
-				// nothing needs to be done
-			}
-
-			// jump
-			if(args[0]=="goto"){
-				go_here = "";
-				if(args.length == 2){
-					// goto label_name
-					go_here = args[1]
-				}else{
-					// goto A 0.4
-					// goto X 0.5 Y 0.2 Z 0.1
-					r = Math.random(); // number between 0 and 1
-					prob_sum = 0; 
-					for(var k=1; k<args.length-1;k+=2){
-						// sum the probabilities as we go
-						prob = parseFloat(args[k+1].replace(",",""));
-						prob_sum += prob;
-						// if sum is greater than r, this is our choice.
-						if(prob_sum > r){
-							// this is the chosen path
-							go_here = args[k]
-						}
-					}
-				}
-				if(go_here){
-					// find label
-					for(c in f){
-						_args = f[c].split(" ");
-						if(_args[0] == "label" && _args[1] == go_here){
-							// update the current stack address to this line
-							address[1] = parseInt(c)
-							break;
-						}
-					}
-					console.log("jumped to " + go_here + ", " + c)
-					continue;  // next command, please.
-				}else{
-					// no jump, continue on to next line.
-				}
-			}
-
-			// subroutine
-			if(args[0]=="f"){
-				var f_name = args[1] 
-	  		stack.push([f_name,0]);  // that's all we have to do!
-	  		continue; 
-			}
-
-			// play 
-			if(args[0]=="play"){
-				var section_name = args[1]
-	  		sound.queueSegment({
-	  			when: next_time, 
-	  			start: parseFloat(data.sections[section_name].start), 
-	  			duration: parseFloat(data.sections[section_name].duration), 
-	  			callback_onended: null, gain: 1, layer: 0})
-	  		next_time += parseFloat(data.sections[section_name].duration)
-			}
-
-			// determine next address in the stack
-			// 1. advance one line,
-			// 2. check if line exists
-			// 		- if not, pop the stack and return to old position in parent subroutine.
-			// 3. repeat until we find a line that exists
-			// 4. if stack is empty, terminate
-			while(true){
-				line += parseInt(1) // 1. advance one line in the subroutine
-				if(f.length <= line){
-					// 2. there are no more lines in the subroutine
-					// subroutine has finished
-					// remove it from stack
-					stack.pop();
-					if(stack.length==0){
-						// stack is empty
-						// main has finished
-						// nothing more to do, terminate
-						termination_flag = true;
-						break;
-					}else{
-						// return to old position in parent subroutine
-						address = stack[stack.length-1];
-						f_name = address[0];
-						f = data.machine[f_name];
-						line = address[1];
-						continue; 
-						// 3. loop around, repeat until we find a line that exists
-					}
-				}else{
-					// we found a line!
-					address[1] = line // update stack with new line
-					break; // leave the loop
-				}
-			}
-			if(termination_flag) break;
+		// terminate 
+		if(args[0]=="terminate"){
+			break;
 		}
-	} else {
-		console.warn('we do not need the requested file anymore: ' + data.mp3);
+
+		// label
+		if(args[0]=="label"){
+			// nothing needs to be done
+		}
+
+		// jump
+		if(args[0]=="goto"){
+			go_here = "";
+			if(args.length == 2){
+				// goto label_name
+				go_here = args[1]
+			}else{
+				// goto A 0.4
+				// goto X 0.5 Y 0.2 Z 0.1
+				r = Math.random(); // number between 0 and 1
+				prob_sum = 0; 
+				for(var k=1; k<args.length-1;k+=2){
+					// sum the probabilities as we go
+					prob = parseFloat(args[k+1].replace(",",""));
+					prob_sum += prob;
+					// if sum is greater than r, this is our choice.
+					if(prob_sum > r){
+						// this is the chosen path
+						go_here = args[k]
+					}
+				}
+			}
+			if(go_here){
+				// find label
+				for(c in f){
+					_args = f[c].split(" ");
+					if(_args[0] == "label" && _args[1] == go_here){
+						// update the current stack address to this line
+						address[1] = parseInt(c)
+						break;
+					}
+				}
+				console.log("jumped to " + go_here + ", " + c)
+				continue;  // next command, please.
+			}else{
+				// no jump, continue on to next line.
+			}
+		}
+
+		// subroutine
+		if(args[0]=="f"){
+			var f_name = args[1] 
+  		stack.push([f_name,0]);  // that's all we have to do!
+  		continue; 
+		}
+
+		// play 
+		if(args[0]=="play"){
+			var section_name = args[1]
+  		sound.queueSegment({
+  			when: next_time, 
+  			start: parseFloat(data.sections[section_name].start), 
+  			duration: parseFloat(data.sections[section_name].duration), 
+  			callback_onended: null, gain: 1, layer: 0})
+  		next_time += parseFloat(data.sections[section_name].duration)
+		}
+
+		// determine next address in the stack
+		// 1. advance one line,
+		// 2. check if line exists
+		// 		- if not, pop the stack and return to old position in parent subroutine.
+		// 3. repeat until we find a line that exists
+		// 4. if stack is empty, terminate
+		while(true){
+			line += parseInt(1) // 1. advance one line in the subroutine
+			if(f.length <= line){
+				// 2. there are no more lines in the subroutine
+				// subroutine has finished
+				// remove it from stack
+				stack.pop();
+				if(stack.length==0){
+					// stack is empty
+					// main has finished
+					// nothing more to do, terminate
+					termination_flag = true;
+					break;
+				}else{
+					// return to old position in parent subroutine
+					address = stack[stack.length-1];
+					f_name = address[0];
+					f = data.machine[f_name];
+					line = address[1];
+					continue; 
+					// 3. loop around, repeat until we find a line that exists
+				}
+			}else{
+				// we found a line!
+				address[1] = line // update stack with new line
+				break; // leave the loop
+			}
+		}
+		if(termination_flag) break;
 	}
-	isReady = true;
+
 	console.log("done");
 }
 
