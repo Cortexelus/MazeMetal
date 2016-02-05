@@ -6,8 +6,7 @@ function SoundEngine(){
 		source: {},
 		request: new XMLHttpRequest(),
 		init: function(mp3, callback){
-			this.context = new (window.AudioContext || window.webkitAudioContext);
-			this.initialized = false;
+			this.context = new window.AudioContext;
 			var self = this;
 
 
@@ -53,9 +52,6 @@ function SoundEngine(){
 			this.request.onerror = function(e) {
                 console.log("error",e);
             }
-           	this.request.onloadend = function(){
-           		self.initialized = true;
-           	}
 			// Point the request to the sound-file that you want to play
 			this.request.open( 'GET', mp3, true );
 			// Set the XHR response-type to 'arraybuffer' to store binary data
@@ -70,9 +66,8 @@ function SoundEngine(){
 			// Make an EventListener to handle the sound-file after it has been loaded
 			this.request.addEventListener( 'load', function( e ){
 				// Beginning decoding the audio data from loaded sound-file ...
-				
 				self.context.decodeAudioData( self.request.response, function( decoded_data ){ 
-						
+						self.segmentQueue = [];
 						// Store the decoded buffer data in the source object
 						self.source = self.context.createBufferSource();
 						self.source.buffer = decoded_data; 
@@ -194,7 +189,7 @@ function SoundEngine(){
 				w = w || 1;
 				console.log("stopAll");
 				for(var b=0;b< bq.length;b++){
-					try{
+					try {
 					bq[b].stop(w + this.context.currentTime);
 					} catch(e){
 						console.warn(e);
@@ -206,7 +201,7 @@ function SoundEngine(){
 			}
 			/*flush current bufferQueue and segmentQueue*/
 			this.bufferQueue = [];
-			this.segmentQueue = [];
+			this.removeAllSegments();
 		},
 
 		timerWorker: null,
@@ -254,18 +249,21 @@ function SoundEngine(){
     	//console.log("queue", seg, this)
     	this.segmentQueue.push(seg);
     },
+    removeAllSegments: function(seg){
+    	this.segmentQueue = [];
+    },
 
-		segmentScheduler: function(){
-		//console.log("scheduler", this.segmentQueue);
-		//console.log(this.bufferQueue)
+	segmentScheduler: function(){
+	//console.log("scheduler", this.segmentQueue);
+	//console.log(this.bufferQueue)
 
-		    // while there are segments that will need to play before the next interval, 
-		    // schedule them and advance the pointer.
-		    while((this.segmentQueue.length > 0) 
-		    	&& (this.segmentQueue[0].when < this.context.currentTime + this.windowLength)){
-		    	this.play(this.segmentQueue.shift());
-		    }
-		},
+	    // while there are segments that will need to play before the next interval, 
+	    // schedule them and advance the pointer.
+	    while((this.segmentQueue.length > 0) 
+	    	&& (this.segmentQueue[0].when < this.context.currentTime + this.windowLength)){
+	    	this.play(this.segmentQueue.shift());
+	    }
+	},
 
 	}
 };

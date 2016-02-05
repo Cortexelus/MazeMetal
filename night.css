@@ -9,7 +9,9 @@ h1 {
 pre {
 	color: #DDF;
 	background-color: #445;
-	margin: 10px;
+	margin: 5px;
+	width: 93%;
+	font-weight: 10px;
 }
 #loading {
 	font-style: italic;
