@@ -23,12 +23,22 @@
         <!-- App -->
         <script src="./trivia.js"></script>
         <script src="app.js"></script>
+        <!--tempo beat detection-->
+        <script src="beat_track.js"></script>
     </head>
 
     <body itemscope itemtype="http://schema.org/WebApplication">
         <div class="container">
 
             <div id="demo">
+                <div id="row">
+                    <div class="col-sm-4">
+                        <label><input type="checkbox" id="cbox1" value="snapbox">snap to grid</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <div id='tempo_value'></div>
+                    </div>
+                </div>
                 <p id="subtitle" class="text-center text-info">&nbsp;</p>
 
                 <div id="wave-timeline"></div>
