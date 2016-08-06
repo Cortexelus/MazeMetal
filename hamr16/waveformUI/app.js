@@ -2,7 +2,7 @@
  * Create a WaveSurfer instance.
  */
 var wavesurfer = Object.create(WaveSurfer);
-
+var context = new AudioContext()
 /**
  * Init & load.
  */
@@ -10,12 +10,13 @@ document.addEventListener('DOMContentLoaded', function () {
     // Init wavesurfer
     wavesurfer.init({
         container: '#waveform',
+        audioContext: context,
         height: 100,
         pixelRatio: 1,
+        audioRate: 1,
         scrollParent: true,
         normalize: true,
         minimap: true,
-        backend: 'MediaElement'
     });
 
     wavesurfer.load('../wavesurfer.js/example/media/demo.wav');
@@ -62,10 +63,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     /* Zoom */
-    document.querySelector('#slider').oninput = function () {
-        wavesurfer.zoom(Number(this.value));
-        console.log(this.value);
-    };
+document.querySelector('#slider').onchange = function () {
+    wavesurfer.zoom(Number(this.value));
+    console.log(this.value)
+};
     /* Minimap plugin */
     wavesurfer.initMinimap({
         height: 30,
@@ -83,9 +84,18 @@ document.addEventListener('DOMContentLoaded', function () {
             wavesurfer: wavesurfer,
             container: "#wave-timeline"
         });
-        console.log(wavesurfer.backend.buffer);
-        tempo, beats = getBPM(wavesurfer.backend.buffer);
-        set_tempo(tempo, beats);
+        wavesurfer.backend.source.buffer.extract = function(target, numFrames, position) {
+            var l = wavesurfer.backend.source.buffer.getChannelData(0),
+                r = wavesurfer.backend.source.buffer.getChannelData(1);
+            var length = l.length;
+            for (var i = 0; i < numFrames; i++) {
+                target[i * 2] = l[i + position];
+                target[i * 2 + 1] = r[i + position];
+            }
+            return Math.min(numFrames, l.length - position);
+        };
+        tempo, beats = getBPM(wavesurfer.backend.source.buffer);
+        document.getElementById("tempo_value").innerHTML = parseInt(tempo)+"bpm";
     });
 
 
@@ -101,14 +111,7 @@ document.addEventListener('DOMContentLoaded', function () {
         pauseButton.style.display = 'none';
     });
 });
-/**
- * Set Tempo
- */
-function set_tempo(tempo, beats) {
-    console.log("setting bpm to " + tempo);
-    document.getElementById("tempo_value").innerHTML = parseInt(tempo)+"bpm";
-    console.log(beats)
-}
+
 /**
  * Save annotations to localStorage.
  */
@@ -246,6 +249,7 @@ function editAnnotation (region) {
         form.dataset.region = null;
     };
     form.dataset.region = region.id;
+    GLOBAL_ACTIONS["export"]();
 }
 
 
@@ -271,29 +275,44 @@ GLOBAL_ACTIONS['delete-region'] = function () {
     }
 };
 
-GLOBAL_ACTIONS['export'] = function () {
-   /* window.open('data:application/json;charset=utf-8,' +
-        encodeURIComponent(localStorage.regions));*/
-        var sections={};
-        r = JSON.parse(localStorage.regions);
-        //console.log(r);
-        for(i in r){ // loop through the regions
-            var s = r[i];
-            /* Example
-            * {"start":1.1,"end":1.8,"attributes":{"label":"abc","highlight":true},"data":{}}
-            */
-            console.log(s)
-            if(s.hasOwnProperty("attributes")
-              && s["attributes"].hasOwnProperty("label")){
-                var label = s["attributes"]["label"];
-                var start = parseFloat(s["start"]);
-                var duration = parseFloat(s["end"]) - start;
-                if(label){
-                    sections[label] = {"start": start, "duration": duration};
 
-                }
+
+// Drag'n'drop
+document.addEventListener('DOMContentLoaded', function () {
+    var toggleActive = function (e, toggle) {
+        e.stopPropagation();
+        e.preventDefault();
+        toggle ? e.target.classList.add('wavesurfer-dragover') :
+            e.target.classList.remove('wavesurfer-dragover');
+    };
+
+    var handlers = {
+        // Drop event
+        drop: function (e) {
+            toggleActive(e, false);
+            $( "#lightbox" ).popup( "close" );
+            GLOBAL_ACTIONS["pause"]();
+            // Load the file into wavesurfer
+            if (e.dataTransfer.files.length) {
+                wavesurfer.loadBlob(e.dataTransfer.files[0]);
+            } else {
+                wavesurfer.fireEvent('error', 'Not a file');
             }
+        },
+
+        // Drag-over event
+        dragover: function (e) {
+            toggleActive(e, true);
+        },
+
+        // Drag-leave event
+        dragleave: function (e) {
+            toggleActive(e, false);
         }
-        console.log("sections", sections, song_name)
-        updateSectionsOnFirebase(song_name, sections);
-};
+    };
+
+    var dropTarget = document.querySelector('#drop');
+    Object.keys(handlers).forEach(function (event) {
+        dropTarget.addEventListener(event, handlers[event]);
+    });
+});

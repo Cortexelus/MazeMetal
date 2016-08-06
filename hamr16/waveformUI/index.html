@@ -6,6 +6,14 @@
 
         <link href="data:image/gif;" rel="icon" type="image/x-icon" />
         <script   src="https://code.jquery.com/jquery-2.1.3.js"   integrity="sha256-goy7ystDD5xbXSf+kwL4eV6zOPJCEBD1FBiCElIm+U8="   crossorigin="anonymous"></script>
+        	  <!--mobile theme-->
+        	  <link rel="stylesheet" href="./themes/PULSE.min.css" />
+<link rel="stylesheet" href="./themes/jquery.mobile.icons.min.css" />
+
+		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile.structure-1.4.5.min.css" />
+		<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+		<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+
         <!-- Bootstrap -->
         <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
 
@@ -26,7 +34,7 @@
         <!--tempo beat detection-->
         <script src="beat_track.js"></script>
 
-
+        
 
         <!-- firebase -->
         <script src="https://www.gstatic.com/firebasejs/3.2.1/firebase.js"></script>
@@ -37,7 +45,7 @@
 
     </head>
 
-    <body itemscope itemtype="http://schema.org/WebApplication">
+    <body itemscope itemtype="http://schema.org/WebApplication" data-theme="b">
         <div class="container">
 
             <div id="demo">
@@ -48,6 +56,17 @@
                     <div class="col-sm-4">
                         <div id='tempo_value'></div>
                     </div>
+                    <div class="col-sm-4">
+                        <a href="#lightbox" data-rel="popup" data-position-to="window" aria-haspopup="true" aria-owns="lightbox" aria-expanded="true" class="ui-link">
+    									<span class="ui-btn-inner">
+    										<div class="glyphicon glyphicon-import"></div>
+    										<span class="ui-btn-text">
+    										IMPORT
+    										</span>
+    									</span>
+    								</a>
+					</div>
+				<div style="display: none;" id="lightbox-placeholder"><!-- placeholder for lightbox --></div>
                 </div>
                 <p id="subtitle" class="text-center text-info">&nbsp;</p>
 
@@ -68,7 +87,8 @@
                         <i class="glyphicon glyphicon-zoom-in"></i>
                     </div>
                     <div class="col-sm-2">
-                        <input data-action="zoom" id="slider" type="range" min="34" max="300" value="0" style="width: 100%">
+                        <input data-action="zoom" id="slider" type="range" min="50" max="300" value="0" style="width: 100%">
+
                     </div>
                     <div class="col-sm-1">
                         <i class="glyphicon glyphicon-zoom-out"></i>
@@ -88,14 +108,22 @@
                     </div>
 
                     <div class="col-sm-2">
-                        <button class="btn btn-info btn-block" data-action="export" title="Export annotations to JSON">
-                            <i class="glyphicon glyphicon-file"></i>
-                            Export
-                        </button>
                     </div>
                 </div>
             </div>
-
+            <div class="ui-popup-container ui-popup-active" id="lightbox-popup" style="max-width: 788px; top: 169px; left: 246px;"><div data-role="popup" id="lightbox" data-theme="b" class="ui-popup ui-body-b ui-overlay-shadow ui-corner-all">
+									<a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right ui-btn-corner-all ui-btn-up-a ui-btn" data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span" title="Close" role="button">
+										<span class="ui-btn-inner">
+											<span class="ui-btn-text x">
+												Close
+											</span>
+											<span class="glyphicon glyphicon-remove x"></span>
+										</span>
+									</a>
+									<div class="lead pull-center" id="drop">
+										DRAG N DROP AN MP3
+									</div>
+								</div></div>
             <form role="form" name="edit" style="opacity: 0; transition: opacity 300ms linear; margin: 30px 0;">
                 <div class="row">
                     <div class="col-sm-3">
@@ -127,6 +155,7 @@
                         <button type="button" class="btn btn-danger btn-block" data-action="delete-region">Delete</button>
                     </div>
                 </div>
+                
             </form>
         </div>
     </body>

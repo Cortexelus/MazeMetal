@@ -20,12 +20,6 @@ function getPeaksAtThreshold(data, threshold) {
   return peaksArray;
 }
 
-function findInterval(){
-    intervalCounts.some(function(intervalCount) {
-        if (intervalCount.interval === interval)
-          return intervalCount.count++;
-      });
-}
 
 // Function used to return a histogram of peak intervals
 function countIntervalsBetweenNearbyPeaks(peaks) {
@@ -33,7 +27,10 @@ function countIntervalsBetweenNearbyPeaks(peaks) {
   peaks.forEach(function(peak, index) {
     for (var i = 0; i < 10; i++) {
       var interval = peaks[index + i] - peak;
-      var foundInterval = findIntervals;
+      var foundInterval = intervalCounts.some(function(intervalCount) {
+        if (intervalCount.interval === interval)
+          return intervalCount.count++;
+      });
       if (!foundInterval) {
         intervalCounts.push({
           interval: interval,
@@ -119,6 +116,6 @@ function getBPM(audio_buffer) {
     console.log(top);
     //depends on code from stretcher.js
     bpm =  Number(top[0].tempo);
-    set_tempo(bpm, peaks);
+    return bpm, peaks;
   };
 }
