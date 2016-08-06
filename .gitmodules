@@ -1,0 +1,3 @@
+[submodule "hamr16/wavesurfer.js"]
+	path = hamr16/wavesurfer.js
+	url = https://github.com/katspaugh/wavesurfer.js
