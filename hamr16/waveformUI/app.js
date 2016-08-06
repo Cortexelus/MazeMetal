@@ -67,8 +67,8 @@ document.addEventListener('DOMContentLoaded', function () {
             var d = snapshot.val();
             for(var region in d){
             	annotations.push({
-            		"start": parseFloat(d["start"]),
-            		"end": parseFloat(d["start"]) + parseFloat(d["duration"]),
+            		"start": parseFloat(d[region]["start"]),
+            		"end": parseFloat(d[region]["start"]) + parseFloat(d[region]["duration"]),
             		"data": {},
             		"attributes": {
             			"label": region,
@@ -76,6 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
             		}
             	})
             }
+            console.log(annotations);
             loadRegions(annotations);
             saveRegions();
         });

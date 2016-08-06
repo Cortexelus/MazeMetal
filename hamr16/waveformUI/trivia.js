@@ -34,7 +34,7 @@ var GLOBAL_ACTIONS = {
                 var label = s["attributes"]["label"];
                 var start = parseFloat(s["start"]);
                 var duration = parseFloat(s["end"]) - start;
-                if (label) {
+                if (label && start && duration) {
                     sections[label] = {
                         "start": start,
                         "duration": duration
