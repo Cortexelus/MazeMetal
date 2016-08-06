@@ -134,26 +134,6 @@ function main(data){
 
 
 
-// Take in our special JSON file and convert it to valid JSON
-// Our file allows comments and line breaks
-function formatToJSON(s){
-	// remove comments
-	s = s.replace(/\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+\//gi, "")
-
-	// find everything inside of quotes
-	s = s.replace(/\"((\\\")|[^\"]|[\r\n])*\"/gi, function(t){
-		// replace line breaks with \n
-		return t.replace(/\n/gi,"\\n")
-	})
-
-	// remove line breaks
-	// s = s.replace(/\n/gi,"")
-	// turn tabs into space
-	s = s.replace(/\s+/gi," ")
-	return s;
-
-}
-
 // return true if script is valid
 // f is an array of commands (strings), 
 // name is the name of that f
