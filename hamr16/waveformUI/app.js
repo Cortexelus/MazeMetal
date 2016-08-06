@@ -272,6 +272,28 @@ GLOBAL_ACTIONS['delete-region'] = function () {
 };
 
 GLOBAL_ACTIONS['export'] = function () {
-    window.open('data:application/json;charset=utf-8,' +
-        encodeURIComponent(localStorage.regions));
+   /* window.open('data:application/json;charset=utf-8,' +
+        encodeURIComponent(localStorage.regions));*/
+        var sections={};
+        r = JSON.parse(localStorage.regions);
+        //console.log(r);
+        for(i in r){ // loop through the regions
+            var s = r[i];
+            /* Example
+            * {"start":1.1,"end":1.8,"attributes":{"label":"abc","highlight":true},"data":{}}
+            */
+            console.log(s)
+            if(s.hasOwnProperty("attributes")
+              && s["attributes"].hasOwnProperty("label")){
+                var label = s["attributes"]["label"];
+                var start = parseFloat(s["start"]);
+                var duration = parseFloat(s["end"]) - start;
+                if(label){
+                    sections[label] = {"start": start, "duration": duration};
+
+                }
+            }
+        }
+        console.log("sections", sections, song_name)
+        updateSectionsOnFirebase(song_name, sections);
 };
