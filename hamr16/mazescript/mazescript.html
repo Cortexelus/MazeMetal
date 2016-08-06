@@ -21,6 +21,13 @@
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/3.2.1/firebase.js"></script>
 
+<script>
+var song_name = "test1";
+</script>
+<script src="connect_to_firebase.js"></script>
+
+
+
 <!-- CodeMirror -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.2.0/codemirror.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.2.0/codemirror.css"/>
@@ -132,15 +139,6 @@ function buttonStopPress(){
 
 
 <script>
-  // Initialize the Firebase SDK
-  firebase.initializeApp({
-    apiKey: 'AIzaSyDDUehISMGjOYIgyjWjkTbzzwiR4Jm6QRU',
-    authDomain: "mazemetal-1a93c.firebaseapp.com",
-    databaseURL: "https://mazemetal-1a93c.firebaseio.com",
-    storageBucket: "mazemetal-1a93c.appspot.com",
-  });
-
-  var firepadRef = firebase.database().ref();
   var codeMirror = CodeMirror(document.getElementById('firepad'), { 
   	lineWrapping: true,
   	lineNumbers: true,

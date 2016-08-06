@@ -1,5 +1,4 @@
 
-var song_name = "test1";
 var sound = SoundEngine();
 var data = null;
 // Load the file containing all the maze info
@@ -28,8 +27,9 @@ function updateSoundState(state){
         var d = data;
         // get firebase
         var script = codeMirror.getValue();
-        getSectionsFromFirebase(function(sections){
+        getSectionsFromFirebase(song_name, function(sections){
             d["sections"] = sections;
+            
             d["machine"] = parseMazeScript(script);
             console.log(d);
             if(validate(d)){
@@ -61,9 +61,3 @@ function parseMazeScript(script){
     return machine
 }
 
-function getSectionsFromFirebase(callback){
-    var x = firepadRef.child("songs/"+song_name+"/sections").on("value", function(snapshot) {
-        console.log(snapshot.val());
-        callback(snapshot.val());  
-    });
-}
