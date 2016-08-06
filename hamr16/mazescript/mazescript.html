@@ -1,0 +1,153 @@
+
+<style>
+.powered-by-firepad{ 
+	display: none !important;
+}
+#firepad{ 
+	height: calc(100% - 100px);
+	width: 300px;
+	border: 1px solid #ddd;
+}
+#player { 
+ margin: 10px;
+ height: 30px;
+}
+#button_play {
+	display: none;
+}
+</style>
+
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/3.2.1/firebase.js"></script>
+
+<script>
+var song_name = "test1";
+</script>
+<script src="connect_to_firebase.js"></script>
+
+
+
+<!-- CodeMirror -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.2.0/codemirror.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.2.0/codemirror.css"/>
+
+<!-- Firepad -->
+<link rel="stylesheet" href="https://cdn.firebase.com/libs/firepad/1.4.0/firepad.css" />
+<script src="https://cdn.firebase.com/libs/firepad/1.4.0/firepad.min.js"></script>
+
+<!-- jQuery -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
+<!-- Bootstrap -->
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
+
+
+<script src="soundengine.js"></script>
+<script src="mazemetal.js"></script>
+	
+
+
+<div id="player">
+<!--
+  <button type="button" id="button_fbw" class="btn" onclick='buttonRewindPress()'>
+    <i class="fa fa-fast-backward"></i>
+  </button>
+  
+  <button type="button" id="button_bw" class="btn" onclick='buttonBackPress()'>
+    <i class="fa fa-backward"></i>
+  </button>-->
+  
+  <button type="button" id="button_play" class="btn" onclick='buttonPlayPress()'>
+    <i class="fa fa-play"></i>
+  </button>
+  <!--
+  <button type="button" id="button_stop" class="btn" onclick='buttonStopPress()'>
+    <i class="fa fa-stop"></i>
+  </button>
+  
+  <button type="button" id="button_fw" class="btn" onclick='buttonForwardPress()'>
+    <i class="fa fa-forward"></i>
+  </button>
+  
+  <button type="button" id="button_ffw" class="btn" onclick='buttonFastforwardPress()'>
+    <i class="fa fa-fast-forward"></i>
+  </button>   
+  -->
+</div>
+
+<div id="firepad"></div>
+
+
+<!-- play button -->
+<script>
+var state = 'stop';
+
+function buttonBackPress() {
+    console.log("button back invoked.");
+}
+
+function buttonForwardPress() {
+    console.log("button forward invoked.");
+}
+
+function buttonRewindPress() {
+    console.log("button rewind invoked.");
+}
+
+function buttonFastforwardPress() {
+    console.log("button fast forward invoked.");
+}
+
+function buttonPlayPress() {
+    if(state=='stop'){
+      state='play';
+      var button = d3.select("#button_play").classed('btn-success', true); 
+      button.select("i").attr('class', "fa fa-pause");  
+    }
+    else if(state=='play' || state=='resume'){
+      state = 'pause';
+      d3.select("#button_play i").attr('class', "fa fa-play"); 
+    }
+    else if(state=='pause'){
+      state = 'resume';
+      d3.select("#button_play i").attr('class', "fa fa-pause");        
+    }
+    console.log("button play pressed, play was "+state);
+
+    updateSoundState(state);
+}
+
+function buttonStopPress(){
+    state = 'stop';
+    var button = d3.select("#button_play").classed('btn-success', false);
+    button.select("i").attr('class', "fa fa-play");
+    console.log("button stop invoked.");   
+
+    updateSoundState(state); 
+}
+</script>
+
+
+
+
+
+
+
+
+
+<script>
+  var codeMirror = CodeMirror(document.getElementById('firepad'), { 
+  	lineWrapping: true,
+  	lineNumbers: true,
+    mode: 'javascript'
+  });
+  var firepad = Firepad.fromCodeMirror(firepadRef, codeMirror,
+      { richTextShortcuts: false, richTextToolbar: false, defaultText: 'Hello, World!' });
+</script>
+
+
+
+<script src="mazescript.js"></script>
