@@ -18,4 +18,18 @@ function reqListener(e) {
 
 firepadRef.child("songs/"+song_name+"/sections").on("value", function(snapshot) {
     // INITIALLY LOAD SECTIONS
+    var annotations = [];
+    var d = snapshot.val();
+    for(region in d){
+    	annotations.push({
+    		"start": parseFloat(d["start"]), 
+    		"end": parseFloat(d["start"]) + parseFloat(d["duration"]),
+    		"data": {},
+    		"attributes": {
+    			"label": region,
+    			"highlight": false
+    		}
+    	})
+    }
+    console.log(annotations);
 });
