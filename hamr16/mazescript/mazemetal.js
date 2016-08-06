@@ -11,7 +11,7 @@ var nameValidator = /^[A-Za-z0-9_]+$/;
 // trust that the machine is valid
 function main(data){
 	var stack = [["main",0]];
-	var next_time = 0;
+	var next_time = sound.context.currentTime;
 	var address = stack[stack.length-1];
 	var f_name, line, f;
 	var termination_flag = false;
@@ -86,10 +86,10 @@ function main(data){
 			var section_name = args[1]
   		sound.queueSegment({
   			when: next_time, 
-  			start: parseFloat(data.sections[section_name].start), 
-  			duration: parseFloat(data.sections[section_name].duration), 
+  			start: parseFloat(data.sections[section_name].start.toFixed(6)), 
+  			duration: parseFloat(data.sections[section_name].duration.toFixed(6)), 
   			callback_onended: null, gain: 1, layer: 0})
-  		next_time += parseFloat(data.sections[section_name].duration)
+  		next_time += parseFloat(data.sections[section_name].duration.toFixed(6))
 		}
 
 		// determine next address in the stack

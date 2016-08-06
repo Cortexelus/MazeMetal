@@ -4,12 +4,26 @@
 	display: none !important;
 }
 #firepad{ 
-	height: calc(100% - 100px);
-	width: 300px;
+	height: calc(50%);
+	margin: auto;
+	width: 100%;
+ float:left;
 	border: 1px solid #ddd;
 }
+#section-list{
+	height: 50%;
+	width: 100%;
+	margin: auto;
+	text-align:left;
+	padding: 20px;
+	font-size: 16px;
+}
+ul{
+	list-style-type:none
+}
 #player { 
- margin: 10px;
+ margin: 10px auto;
+ text-align: center;
  height: 30px;
 }
 #button_play {
@@ -21,9 +35,6 @@
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/3.2.1/firebase.js"></script>
 
-<script>
-var song_name = "test1";
-</script>
 <script src="../connect_to_firebase.js"></script>
 
 
@@ -63,11 +74,11 @@ var song_name = "test1";
   <button type="button" id="button_play" class="btn" onclick='buttonPlayPress()'>
     <i class="fa fa-play"></i>
   </button>
-  <!--
+  
   <button type="button" id="button_stop" class="btn" onclick='buttonStopPress()'>
     <i class="fa fa-stop"></i>
   </button>
-  
+  	<!--
   <button type="button" id="button_fw" class="btn" onclick='buttonForwardPress()'>
     <i class="fa fa-forward"></i>
   </button>
@@ -79,6 +90,8 @@ var song_name = "test1";
 </div>
 
 <div id="firepad"></div>
+
+<div id="section-list"></div>
 
 
 <!-- play button -->
@@ -144,7 +157,7 @@ function buttonStopPress(){
   	lineNumbers: true,
     mode: 'javascript'
   });
-  var firepad = Firepad.fromCodeMirror(firepadRef, codeMirror,
+  var firepad = Firepad.fromCodeMirror(firepadRef.child("scripts/"+song_name), codeMirror,
       { richTextShortcuts: false, richTextToolbar: false, defaultText: 'Hello, World!' });
 </script>
 

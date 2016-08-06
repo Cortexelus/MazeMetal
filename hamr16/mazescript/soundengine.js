@@ -27,7 +27,7 @@ function SoundEngine(){
     				self.audioGain.connect(self.context.destination);
 
 						// Connect the source node to the Web Audio destination node
-						self.source.connect( self.context.destination ); 
+						self.source.connect( self.audioGain ); 
 						// Add an EventListener to fire a function every time a key is pressed
 						
 						/* Init tiny metronome */
@@ -47,7 +47,7 @@ function SoundEngine(){
 				// End of decode handler
 				); 
 				// End of Event Listener
-				}, false );
+			}, false );
 
 			this.request.onerror = function(e) {
                 console.log("error",e)
@@ -69,21 +69,19 @@ function SoundEngine(){
 			//console.log("play", seg);
 			//when, start, duration, callback_onended, gain, layer
 			// Create a new BufferSource
-			newSource = this.context.createBufferSource();
+			var newSource = this.context.createBufferSource();
 
 			// Copy the buffer data from the loaded sound
 			newSource.buffer = this.source.buffer;
 			// Connect the new source to the new destination
 
-			if(seg.gain==0){
-				gainNode = this.context.createGain();
-				gainNode.gain.value = 0
-				newSource.connect(gainNode)
-				gainNode.connect( this.context.destination );
-			}else{
-				newSource.connect( this.context.destination );
-			}
-		
+			var gainNode = this.context.createGain();
+			gainNode.gain.value = seg.gain
+			newSource.connect(gainNode)
+			gainNode.connect( this.context.destination );
+			seg.gainNode = gainNode
+			newSource.gainNode = gainNode;	
+	
 			//newSource.beginTime = seg.when + this.context.currentTime;
 			newSource.layer = seg.layer;
 			//	console.log(layer, newSource.layer);
@@ -157,18 +155,32 @@ function SoundEngine(){
 			for(var b=0;b< bq.length;b++){
 					//console.log(b, bq[b]);
 					try{
-						bq[b].stop(w + this.context.currentTime);
+						bq[b].gainNode.gain.value=0;
+						bq[b].stop(w);
 					}catch(err){
 						// 
 					}
 			}
 			this.bufferQueue = []
-			this.audioGain.gain.value = 1 // temporary hack for stop 
+			this.audioGain.gain.value = 0 // temporary hack for stop 
+			var sq = this.segmentQueue;
+			//console.log(bq);
+			for(var s=0;s< sq.length;s++){
+					//console.log(s, sq[s]);
+					try{
+						sq[s].gainNode.gain.value=0;
+						sq[s].stop(w);
+					}catch(err){
+						// 
+					}
+			}
+			this.segmentQueue = []
+
 		},
 
 		timerWorker: null,
 		interval: 50,
-		windowLength: 5.000, // How far ahead to schedule audio (sec)
+		windowLength: 1.000, // How far ahead to schedule audio (sec)
 
 		initMetronome: function(){
 			console.log("metronome init")
@@ -204,8 +216,15 @@ function SoundEngine(){
 		},
 		stop: function(){
 			// end
-			/*this.stopMetronome();
-			this.stopAll(0);*/
+			//this.stopMetronome();
+			this.stopAll(0);
+			this.context.suspend()
+		},
+		pause: function(){
+			this.context.suspend()
+		},
+		unpause: function(){
+			this.context.resume()
 		},
 
 
@@ -225,7 +244,7 @@ function SoundEngine(){
 		    // schedule them and advance the pointer.
 		    while((this.segmentQueue.length > 0) 
 		    	&& (this.segmentQueue[0].when < this.context.currentTime + this.windowLength)){
-		    	console.log(this.segmentQueue[0]);
+		    	//console.log(this.segmentQueue[0]);
 		    	this.play(this.segmentQueue.shift());
 		    }
 		},
