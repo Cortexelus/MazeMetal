@@ -4,30 +4,43 @@
 	display: none !important;
 }
 #firepad{ 
-	height: calc(50%);
-	margin: auto;
-	width: 100%;
- float:left;
-	border: 1px solid #ddd;
+	height: 60%;
+    margin: auto;
+    width: 100%;
+    /* float: left; */
+    border: 1px solid #ddd;
 }
+
 #section-list{
-	height: 50%;
-	width: 100%;
-	margin: auto;
-	text-align:left;
-	padding: 20px;
-	font-size: 16px;
+	    height: 400px;
+    top: 100px;
+    width: 100%;
+    margin: auto;
+    /* text-align: left; */
+    color: #ccc;
+    /* padding: 20px; */
+    font-size: 16px;
 }
 ul{
 	list-style-type:none
 }
 #player { 
- margin: 10px auto;
- text-align: center;
+ 
  height: 30px;
 }
 #button_play {
 	display: none;
+}
+#artist_name{
+	font-size:36px;
+	padding-bottom: 0px;
+	padding-top: 4px;
+}
+#song_title{
+	font-size:18px;
+	color:#999;
+	padding-top:0px;
+	padding-bottom: 8px;
 }
 </style>
 
@@ -61,6 +74,13 @@ ul{
 	
 
 
+
+<div id="artist_name"></div>
+<div id="song_title"></div>
+
+<div id="firepad"></div>
+
+
 <div id="player">
 <!--
   <button type="button" id="button_fbw" class="btn" onclick='buttonRewindPress()'>
@@ -88,8 +108,6 @@ ul{
   </button>   
   -->
 </div>
-
-<div id="firepad"></div>
 
 <div id="section-list"></div>
 

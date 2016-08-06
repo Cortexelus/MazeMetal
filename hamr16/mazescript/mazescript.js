@@ -4,13 +4,19 @@ var data = null;
 // Load the file containing all the maze info
 var oReq = new XMLHttpRequest();
 oReq.onload = reqListener;
-oReq.open("get", "litanyofregrets.json", true);
+oReq.open("get", "../song_data/" + song_name + ".json", true);
 oReq.send();
 function reqListener(e) {
 	response = this.responseText
     data = JSON.parse(formatToJSON(response));
+    if(data["artist"]){
+        $("#artist_name").html(data["artist"]);
+    }
+    if(data["title"]){
+        $("#song_title").html(data["title"]);
+    }
     if(validate(data)){
-        sound.init(data["mp3"],function(){
+        sound.init("../song_data/" + data["mp3"],function(){
             console.log("Mp3 loaded");
                 //everythingLoaded();
             everythingLoaded();

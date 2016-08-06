@@ -23,3 +23,4 @@ var song_name = getParameterByName("song");
 function updateSectionsOnFirebase(song_name, sections){
 		firepadRef.child("songs/"+song_name+"/sections").set(sections);
 }
+
