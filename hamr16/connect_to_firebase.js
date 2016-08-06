@@ -8,14 +8,18 @@ firebase.initializeApp({
 
 var firepadRef = firebase.database().ref();
 
-function updateSectionsOnFirebase(song_name, sections){
-		firepadRef.child("songs/"+song_name+"/sections").set(sections);
+
+function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
-
-function getSectionsFromFirebase(song_name, callback){
-    var x = firepadRef.child("songs/"+song_name+"/sections").on("value", function(snapshot) {
-        console.log(snapshot.val());
-        callback(snapshot.val());  
-    });
+var song_name = getParameterByName("song");
+function updateSectionsOnFirebase(song_name, sections){
+		firepadRef.child("songs/"+song_name+"/sections").set(sections);
 }
