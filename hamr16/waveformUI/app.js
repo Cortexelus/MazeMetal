@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     wavesurfer.on('ready', function () {
+        /*
         if (localStorage.regions) {
             loadRegions(JSON.parse(localStorage.regions));
             
@@ -57,7 +58,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 loadRegions(data);
                 saveRegions();
             });
-        }
+        }*/
+        /*** initially load sections ***/
+
+        firepadRef.child("songs/"+song_name+"/sections").on("value", function(snapshot) {
+            // INITIALLY LOAD SECTIONS
+            var annotations = [];
+            var d = snapshot.val();
+            for(var region in d){
+            	annotations.push({
+            		"start": parseFloat(d["start"]),
+            		"end": parseFloat(d["start"]) + parseFloat(d["duration"]),
+            		"data": {},
+            		"attributes": {
+            			"label": region,
+            			"highlight": false
+            		}
+            	})
+            }
+            loadRegions(annotations);
+            saveRegions();
+        });
     });
     wavesurfer.on('region-click', function (region, e) {
         e.stopPropagation();
