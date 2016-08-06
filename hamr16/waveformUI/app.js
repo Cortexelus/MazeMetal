@@ -19,7 +19,21 @@ document.addEventListener('DOMContentLoaded', function () {
         minimap: true,
     });
 
-    wavesurfer.load('../wavesurfer.js/example/media/demo.wav');
+
+    /*** LOAD MP3 on LOAD **/
+    
+    var oReq = new XMLHttpRequest();
+    oReq.onload = reqListener;
+    oReq.open("get", "../song_data/" + song_name + ".json", true);
+    oReq.send();
+    function reqListener(e) {
+    	response = this.responseText
+      data = JSON.parse(formatToJSON(response));
+      if(data["mp3"]){
+         // load mp3
+         wavesurfer.load("../song_data/"+ data["mp3"]);
+      }
+    }
     /* Regions */
     wavesurfer.enableDragSelection({
         color: randomColor(0.1)
@@ -28,6 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
     wavesurfer.on('ready', function () {
         if (localStorage.regions) {
             loadRegions(JSON.parse(localStorage.regions));
+            
         } else {
             // loadRegions(
             //     extractRegions(
@@ -242,6 +257,7 @@ function editAnnotation (region) {
                 label: form.elements.label.value
             }
         });
+        GLOBAL_ACTIONS["export"]();
         form.style.opacity = 0;
     };
     form.onreset = function () {
