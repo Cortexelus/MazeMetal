@@ -77,11 +77,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /* Timeline plugin */
     wavesurfer.on('ready', function () {
+        var tempo, beats;
         var timeline = Object.create(WaveSurfer.Timeline);
         timeline.init({
             wavesurfer: wavesurfer,
             container: "#wave-timeline"
         });
+        console.log(wavesurfer.backend.buffer);
+        tempo, beats = getBPM(wavesurfer.backend.buffer);
+        set_tempo(tempo, beats);
     });
 
 
@@ -97,8 +101,14 @@ document.addEventListener('DOMContentLoaded', function () {
         pauseButton.style.display = 'none';
     });
 });
-
-
+/**
+ * Set Tempo
+ */
+function set_tempo(tempo, beats) {
+    console.log("setting bpm to " + tempo);
+    document.getElementById("tempo_value").innerHTML = parseInt(tempo)+"bpm";
+    console.log(beats)
+}
 /**
  * Save annotations to localStorage.
  */
