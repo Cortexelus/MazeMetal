@@ -2,29 +2,51 @@
  * GPLv2 license
  * cortexel.us | github.com/cortexelus
 */
-
+"strict mode"
 var data, response;
 var supported_versions = ["mazemetal0.01"];
 var nameValidator = /^[A-Za-z0-9_]+$/;
 var sound = SoundEngine();
-
-// Load the file containing all the maze info
+var termination_flag = false;
+var initialized = false;
 var oReq = new XMLHttpRequest();
 oReq.onload = reqListener;
-oReq.open("get", "litanyofregrets.json", true);
+var f_name = "litanyofregrets.json";
+oReq.open("get", f_name, true);
 oReq.send();
+
 function reqListener(e) {
-		response = this.responseText
+	response = this.responseText
     data = JSON.parse(formatToJSON(response));
     if(validate(data)){
-    	console.log("Let's begin")
-    	sound.init(data["mp3"],function(){
-    		console.log("Mp3 loaded");
-    		main(data)
-    	});
+    	console.log("Let's begin");
+    	//stop buffers and metronome if already started
+		if(sound.initialized){
+			sound.load(data["mp3"],function(){
+	    		console.log("Mp3 loaded");
+	    		main(data)
+	    	}, sound);
+		} else {
+			sound.init(data["mp3"],function(){
+	    		console.log("Mp3 loaded");
+	    		main(data);
+	    		initialized = true;
+	    	});
+		}
+    	
     }
 }
-
+// Load the file containing all the maze info
+function loadMaze(json){
+	f_name = json || "litanyofregrets.json";
+	termination_flag = true;
+	sound.stopMetronome();
+	sound.stopAll();
+	console.warn('aborting previous json oReq');
+	oReq.abort();
+	oReq.open("get", f_name, true);
+	oReq.send();
+}
 // execute the machine
 // trust that the machine is valid
 function main(data){
@@ -32,7 +54,7 @@ function main(data){
 	var next_time = 0;
 	var address = stack[stack.length-1];
 	var f_name, line, f;
-	var termination_flag = false;
+	termination_flag = false;
 	while(true){
 		address = stack[stack.length-1];
 		f_name = address[0];
